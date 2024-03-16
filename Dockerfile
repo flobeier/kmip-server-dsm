@@ -1,11 +1,15 @@
-FROM alpine:3.19
+FROM python:3.12-alpine3.19
 
-RUN apk add --no-cache py3-pip openssl
+RUN apk add --no-cache \
+    openssl-dev libffi-dev musl-dev gcc rust cargo && \
+    pip wheel --no-deps --wheel-dir=/wheel pykmip cffi cryptography && \
 
-RUN apk add --no-cache --virtual build-deps \
-    python3-dev openssl-dev libffi-dev musl-dev gcc rust cargo && \
-    pip install pykmip --break-system-packages && \
-    apk del build-deps
+FROM python:3.12-alpine3.19
+
+COPY --from=0 /wheel /wheel
+
+RUN apk add --no-cache openssl && \
+    pip install --no-cache-dir /wheel/*
 
 RUN mkdir -p /etc/pykmip \
     mkdir -p /etc/pykmip/policy \
@@ -18,9 +22,7 @@ COPY assets/policy.json /etc/pykmip/policy
 
 COPY config.sh /etc/pykmip
 
-COPY assets/init.sh /bin/init.sh
-
-RUN chmod 755 /bin/init.sh
+COPY --chmod=755 assets/init.sh /bin/init.sh
 
 EXPOSE 5696
 
