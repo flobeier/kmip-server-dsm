@@ -2,7 +2,7 @@ FROM python:3.11-alpine3.19
 
 RUN apk add --no-cache \
     openssl-dev libffi-dev musl-dev gcc rust cargo && \
-    pip wheel --no-deps --wheel-dir=/wheel pykmip cffi cryptography && \
+    pip wheel --no-deps --wheel-dir=/wheel pykmip cffi cryptography
 
 FROM python:3.11-alpine3.19
 
